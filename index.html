@@ -1,9 +1,10 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html>
 <head>
   <title>Noughts and Crosses</title>
   <style>
     body { text-align: center; font-family: Arial; }
+
     .board {
       display: grid;
       grid-template-columns: repeat(3, 80px);
@@ -11,6 +12,7 @@
       justify-content: center;
       margin-top: 20px;
     }
+
     .cell {
       width: 80px;
       height: 80px;
@@ -18,18 +20,42 @@
       border: 2px solid black;
       cursor: pointer;
     }
+
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 1em;
+    }
   </style>
 </head>
 <body>
 
 <h1>Noughts and Crosses</h1>
-<p id="turn">Turn: X</p>
 
+<div id="menu">
+  <button onclick="startGame('ai')">Play vs AI</button>
+  <button onclick="startGame('2p')">2 Player</button>
+</div>
+
+<p id="turn"></p>
 <div class="board" id="board"></div>
 
 <script>
-  let board = Array(9).fill("");
+  let board = [];
   let current = "X";
+  let mode = "";
+  let gameActive = false;
+
+  function startGame(selectedMode) {
+    mode = selectedMode;
+    board = Array(9).fill("");
+    current = "X";
+    gameActive = true;
+
+    document.getElementById("menu").style.display = "none";
+    document.getElementById("turn").textContent = "Turn: X";
+    draw();
+  }
 
   function draw() {
     const boardDiv = document.getElementById("board");
@@ -45,16 +71,71 @@
   }
 
   function move(i) {
-    if (board[i] !== "") return;
+    if (!gameActive || board[i] !== "") return;
 
     board[i] = current;
-    current = current === "X" ? "O" : "X";
 
+    if (checkWin(current)) {
+      endGame(current + " wins!");
+      return;
+    }
+
+    if (!board.includes("")) {
+      endGame("Draw!");
+      return;
+    }
+
+    current = current === "X" ? "O" : "X";
     document.getElementById("turn").textContent = "Turn: " + current;
+    draw();
+
+    if (mode === "ai" && current === "O") {
+      setTimeout(aiMove, 300);
+    }
+  }
+
+  function aiMove() {
+    let empty = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
+    let move = empty[Math.floor(Math.random() * empty.length)];
+    board[move] = "O";
+
+    if (checkWin("O")) {
+      endGame("AI wins!");
+      return;
+    }
+
+    if (!board.includes("")) {
+      endGame("Draw!");
+      return;
+    }
+
+    current = "X";
+    document.getElementById("turn").textContent = "Turn: X";
     draw();
   }
 
-  draw();
+  function checkWin(player) {
+    const wins = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+    return wins.some(combo => combo.every(i => board[i] === player));
+  }
+
+  function endGame(message) {
+    gameActive = false;
+    setTimeout(() => {
+      alert(message);
+      resetToMenu();
+    }, 200);
+  }
+
+  function resetToMenu() {
+    document.getElementById("menu").style.display = "block";
+    document.getElementById("board").innerHTML = "";
+    document.getElementById("turn").textContent = "";
+  }
 </script>
 
 </body>
