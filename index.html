@@ -1,10 +1,61 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Test Page</title>
+  <title>Noughts and Crosses</title>
+  <style>
+    body { text-align: center; font-family: Arial; }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 80px);
+      gap: 5px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .cell {
+      width: 80px;
+      height: 80px;
+      font-size: 2em;
+      border: 2px solid black;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <h1>It works 🎉</h1>
-  <p>If you can see this, GitHub Pages is working.</p>
+
+<h1>Noughts and Crosses</h1>
+<p id="turn">Turn: X</p>
+
+<div class="board" id="board"></div>
+
+<script>
+  let board = Array(9).fill("");
+  let current = "X";
+
+  function draw() {
+    const boardDiv = document.getElementById("board");
+    boardDiv.innerHTML = "";
+
+    board.forEach((cell, i) => {
+      const div = document.createElement("div");
+      div.className = "cell";
+      div.textContent = cell;
+      div.onclick = () => move(i);
+      boardDiv.appendChild(div);
+    });
+  }
+
+  function move(i) {
+    if (board[i] !== "") return;
+
+    board[i] = current;
+    current = current === "X" ? "O" : "X";
+
+    document.getElementById("turn").textContent = "Turn: " + current;
+    draw();
+  }
+
+  draw();
+</script>
+
 </body>
 </html>
